@@ -1,5 +1,6 @@
 # BlokusHacker
 
+> AI for Blokus
 
 [Blokus](http://www.mattelgames.com/en-us/blokus/index.html) is an abstract strategy board game for two to four players, invented by [Bernard Tavitian](https://en.wikipedia.org/wiki/Blokus#cite_note-2) and first released in 2000 by Sekkoïa, a French company. It has won several awards, including the Mensa Select award and the 2004 Teacher's Choice Award. 
 

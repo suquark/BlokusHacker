@@ -2,6 +2,8 @@
 
 > AI for Blokus
 
+***Still updating...***
+
 [Blokus](http://www.mattelgames.com/en-us/blokus/index.html) is an abstract strategy board game for two to four players, invented by [Bernard Tavitian](https://en.wikipedia.org/wiki/Blokus#cite_note-2) and first released in 2000 by Sekkoïa, a French company. It has won several awards, including the Mensa Select award and the 2004 Teacher's Choice Award. 
 
 ![Blokus](BLOKUS.jpg)
@@ -26,8 +28,8 @@ The standard rules of play for all variations of the game are as follows:
 ## Restrictions
 
 To be fair, we only concern about the 2-player version:
-* 14\*14 board, 1 color per player, first step must cover a special location.
-* 20\*20 board, 2 colors per player, first step must cover a corner.
+* 14\*14 board, 1 color per player, first step must cover a special location.(Pictures later)
+* 20\*20 board, 2 colors per player, first step must cover a corner.(Pictures later)
 
 **Here's some markable standard for winners (optional):**
 

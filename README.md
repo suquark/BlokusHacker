@@ -17,6 +17,8 @@ We'll provide a platform for AIs to fight with each other.
 
 The game is played on a square board divided into 20 rows and 20 columns, for a total of 400 squares. There are a total of 84 game tiles, organized into 21 shapes in each of four colors: blue, yellow, red and green. The 21 shapes are based on free polyominoes of from one to five squares (one monomino, one domino, two trominoes/triominoes, five tetrominoes, and 12 pentominoes).
 
+![Tiles](Tiles.png)
+
 The standard rules of play for all variations of the game are as follows:
 
 * Order of play is either clockwise or counter-clockwise.
@@ -28,8 +30,19 @@ The standard rules of play for all variations of the game are as follows:
 ## Restrictions
 
 To be fair, we only concern about the 2-player version:
-* 14\*14 board, 1 color per player, first step must cover a special location.(Pictures later)
-* 20\*20 board, 2 colors per player, first step must cover a corner.(Pictures later)
+
+* 14\*14 board, 1 color per player, first step must cover a special location.
+
+![SmallBoard](SmallBoard.png)
+
+* 20\*20 board, 2 colors per player, first step must cover a corner.
+
+![BigBoard](BigBoard.png)
+
+**Indexing of the board:**
+
+![GridIndexing](GridIndexing.png)
+
 
 **Here's some markable standard for winners (optional):**
 

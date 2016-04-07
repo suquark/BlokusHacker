@@ -35,7 +35,7 @@ To be fair, we only concern about the 2-player version:
 
 ![SmallBoard](SmallBoard.png)
 
-* 20\*20 board, 2 colors per player, first step must cover a corner.
+* 20\*20 board, 2 colors per player (player1 takes red & blue, while player2 takes yellow & green), first step must cover a corner.
 
 ![BigBoard](BigBoard.png)
 

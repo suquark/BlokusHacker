@@ -44,7 +44,7 @@ To be fair, we only concern about the 2-player version:
 ![GridIndexing](GridIndexing.png)
 
 
-**Here's some markable standard for winners (optional):**
+**Here's some remarkable standard for winners (optional):**
 
 * Get the highest score while provided with enough time for thinking. (For example, 30sec/step)
 * Get the highest score while provided with little time for thinking. (For example, 1sec/step)

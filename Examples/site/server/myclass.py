@@ -1,58 +1,53 @@
-from simple_json import JSONEncoder
 from simple_json import JSONDecoder
-import requests
+from simple_json import JSONEncoder
 
 
 # --------------------------------------------------------------------------------------
 # This block define the input of the app
 # the name of style is not difined
 # json_example:
-# '{"Stste": "Normal", "Style": "10", "Moves": [[1, 2], [1, 0], [0, 0], [1, 1], [1, 3]]}'
+# '{"State": "Normal", "Style": "10", "Moves": [[1, 2], [1, 0], [0, 0], [1, 1], [1, 3]]}'
 # 
 # dict_example:
-# {'Stste': 'Normal', 'Style': '10', 'Moves': [(1, 2), (1, 0), (0, 0), (1, 1), (1, 3)]}
-##Moves could be a set or a list
+# {'State': 'Normal', 'Style': '10', 'Moves': [(1, 2), (1, 0), (0, 0), (1, 1), (1, 3)]}
+# Moves could be a set or a list
 # --------------------------------------------------------------------------------------
 # rule one: using tuple to define a point
 # rule two: the massage flow in the program is dict:last_move
 # rule three: the procession in this file only work well if you make sure that  "move" is not empty
 # --------------------------------------------------------------------------------------
 class Information(object):
-    """ This class define the information uning in communication between server and users """
+    """ This class define the information using in communication between server and users """
 
-    def __init__(self, moves):  # moves cotains the position in the chess board
-        self._moves = moves
-        self._movesD = {}
-        self._movesJ = ''
-        if isinstance(self._moves, str):
-            self._movesJ = self._moves
+    def __init__(self, moves = None):  # moves contains the position in the chess board
+        self.moves = moves
+        self.movesD = {}
+        self.movesJ = ''
+        if isinstance(self.moves, str):
+            self.movesJ = self.moves
             self.Decode()
-            if not self._movesD.__contains__('State'):  # the name of 'State' may should Change
-                d['State'] = 'normal'
-            elif not self._movesD.__contains__('Moves'):
-                d['Moves'] = ''
-            elif not self._movesD.__contains__('Style'):
-                d['Style'] = ''
+            if not self.movesD.__contains__('State'):  # the name of 'State' may should Change
+                self.movesD['State'] = 'normal'
+            elif not self.movesD.__contains__('Moves'):
+                self.movesD['Moves'] = ''
+            elif not self.movesD.__contains__('Style'):
+                self.movesD['Style'] = ''
             self.Encode()
-        elif isinstance(self._moves, dict):
-            self._movesD = self._moves
-            if not self._movesD.__contains__('State'):  # the name of 'State' may should Change
-                d['State'] = 'normal'
-            elif not self._movesD.__contains__('Moves'):
-                d['Moves'] = ''
-            elif not self._movesD.__contains__('Style'):
-                d['Style'] = ''
+        elif isinstance(self.moves, dict):
+            self.movesD = self.moves
+            if not self.movesD.__contains__('State'):  # the name of 'State' may should Change
+                self.movesD['State'] = 'normal'
+            elif not self.movesD.__contains__('Moves'):
+                self.movesD['Moves'] = ''
+            elif not self.movesD.__contains__('Style'):
+                self.movesD['Style'] = ''
             self.Encode()
 
     def Encode(self):
-        self._movesJ = JSONEncoder().encode(self._movesD)
+        self.movesJ = JSONEncoder().encode(self.movesD)
 
     def Decode(self):
-        self._movesD = JSONDecoder().decode(self._movesJ)
-
-
-from styles import Style
-import stdlib.stdarray as array
+        self.movesD = JSONDecoder().decode(self.movesJ)
 
 
 class ChessBoard(object):
@@ -129,7 +124,7 @@ class ChessBoard(object):
                 self.essentialPoints.remove(point)
 
     def update(self, last_move):
-        print 'db update'
+        # print 'db update'
         print self.checkMoves(last_move)
         if (self.checkMoves(last_move)):
             move = last_move['Moves']
@@ -138,7 +133,7 @@ class ChessBoard(object):
                 self.addForbiddenPoint(point)
             self.rmEssentialPoint()
 
-    def judgeStyle(self, Moves):  # last_moves is the information of the last move
+    def judgeStyle(self, Moves):  # lastmoves is the information of the last move
         style = Style(Moves)
         return style.ID
 
@@ -150,12 +145,9 @@ class ChessBoard(object):
         array.write2D(self.board)
 
 
-from styles import Style
-
-
 class Player(object):
-    def __init__(self, name=''):
-        self.name = name
+    def __init__(self, id = None):
+        self.id = id
         self.size = 14
         self.board = ChessBoard(self.size)
         self.chess_ID_list = self.initChesslist()
@@ -200,7 +192,7 @@ class Player(object):
                                 else:
                                     flag = self.board.checkMoves(possible_move)
                                     if flag:
-                                        print possible_move
+                                        # print possible_move
                                         return True
         return False
 
@@ -223,20 +215,43 @@ class Player(object):
         self.board.setForbiddenPoint(other_move['Moves'])
 
     def countScores(self):
-        Score = 0
+        score = 0
         for ID in self.chess_ID_list:
             if ID == 1:
-                score = score + 1
+                score += 1
             elif ID == 2:
-                score = score + 2
+                score += 2
             elif ID <= 4:
-                score = score + 3
+                score += 3
             elif ID <= 9:
-                score = score + 4
+                score += 4
             else:
-                score = score + 5
+                score += 5
         return score
 
+
+class Game(object):
+    def __init__(self, p1, p2, last_moves=None):
+        self.p1 = p1
+        self.p2 = p2
+        self.last_moves = last_moves
+
+    def update(self, player_id, last_moves):
+        if player_id is self.p1.id:
+            self.p1.myMoves(last_moves)
+            self.p2.otherMoves(last_moves)
+            self.last_moves = last_moves
+        else:
+            self.p2.myMoves(last_moves)
+            self.p1.otherMoves(last_moves)
+            self.last_moves = last_moves
+        return 0
+
+    def check_end(self):
+        is_end = False
+        if self.p1.Judge_nomoves() and self.p2.Judge_nomoves():
+            is_end = True
+        return is_end
 
 from generator import *
 
@@ -249,33 +264,33 @@ def main():
                 last_move_l = Generator().generate_chess()
                 # Generator().showChess(last_move_l)
                 last_move = {'Stste': 'Normal', 'Style': '', 'Moves': last_move_l}
-                player.move(last_move)
+                player.myMove(last_move)
         player.board.Show()
         A = raw_input()
         if A == 'show':
             print player.chess_ID_list
             raw_input()
-        # if A is not '\n':
-        # 	ID = int(raw_input('ID: '))
-        # 	line_shift = int(raw_input('line_shift: '))
-        # 	row_shift = int(raw_input('row_shift: '))
-        # 	sty = Style(ID)
-        # 	point_list = []
-        # 	for point in sty.pointsSet:
-        # 		point_list.append((point[0]+line_shift, point[1]+row_shift))
-        # 	input_move = {'Stste': 'Normal', 'Style' : '', 'Moves' : point_list}
-        # 	player.move(input_move)
-        # 	player.board.Show()
-        # 	raw_input()
+            # if A is not '\n':
+            # 	ID = int(raw_input('ID: '))
+            # 	line_shift = int(raw_input('line_shift: '))
+            # 	row_shift = int(raw_input('row_shift: '))
+            # 	sty = Style(ID)
+            # 	point_list = []
+            # 	for point in sty.pointsSet:
+            # 		point_list.append((point[0]+line_shift, point[1]+row_shift))
+            # 	input_move = {'Stste': 'Normal', 'Style' : '', 'Moves' : point_list}
+            # 	player.move(input_move)
+            # 	player.board.Show()
+            # 	raw_input()
 
 
-        # player1 = Player()
-        # player2 = Player()
-        # last_moves = {'Stste': 'Normal', 'Style': '10', 'Moves': [(1, 2), (1, 0), (0, 0), (1, 1), (1, 3)]}
-        # cb = ChessBoard(14)
-        # cb.essentialPoints = [(0, 0)]
-        # cb.update(last_moves)
-        # cb.Show()
+            # player1 = Player()
+            # player2 = Player()
+            # lastmoves = {'Stste': 'Normal', 'Style': '10', 'Moves': [(1, 2), (1, 0), (0, 0), (1, 1), (1, 3)]}
+            # cb = ChessBoard(14)
+            # cb.essentialPoints = [(0, 0)]
+            # cb.update(lastmoves)
+            # cb.Show()
 
 
 if __name__ == '__main__':

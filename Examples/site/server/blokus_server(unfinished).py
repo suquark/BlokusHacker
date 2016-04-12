@@ -19,7 +19,7 @@ player_dict = {}
 game_dict = {}
 
 """
-There are mainly two problems in the programs 1. asy operation is falid it is not asy at all
+There are mainly a problems in the programs 1. asy operation is falid it is not asy at all
 """
 def generate_index():
     index = 0
@@ -32,10 +32,10 @@ def check_match(player, callback=None):
     had_match = False
     while not had_match:
         wait_player_num = len(wait_player_list)
-        for game in game_dict.itervalues():
+        for game in game_dict.itervalues():                 # check if I had been matched
             if game.p1 == player or game.p2 == player:
                 had_match = True
-        if not had_match and wait_player_num > 1:
+        if not had_match and wait_player_num > 1:           # if I had not been match and there is someone else waiting
             wait_player_list.remove(player)
             other_player = wait_player_list.pop(0)
             game_id = generate_index()
@@ -43,9 +43,17 @@ def check_match(player, callback=None):
             game_dict[game_id] = new_game
             had_match = True
         else:
-            print 'sleep'
             time.sleep(1)
 
+
+def check_other_moved(game_id, moves, callback=None):
+    had_moved = False
+    while not had_moved:
+        if game_id.last_moves is not moves:
+            had_moved = True
+        else:
+            time.sleep(1)
+    return moves
 
 class TestHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
@@ -64,9 +72,12 @@ class IndexHandler(tornado.web.RequestHandler):
         wait_player_list.append(self.player)
         yield tornado.gen.Task(check_match, self.player)  # asynchronous part
         player_dict[player_id] = self.player
-        self.write(player_id)
+        game_id = self.get_game_id()
+        if player_id == game_dict[game_id].p1.id:
+            self.write(player_id)
+        else:
+            yield tornado.gen.Task(check_other_moved, [game_id, None])
         self.finish()
-
 
     def get_game_id(self):
         game_id = -1
@@ -76,6 +87,7 @@ class IndexHandler(tornado.web.RequestHandler):
                 break
         return game_id
 
+    @tornado.gen.engine
     def post(self):
         # Form is define as the format: {'id' : value1, 'Moves' : value2} while value1 is an int num, and value a list
         # of tuples which shows the point to be covered
@@ -113,20 +125,10 @@ class IndexHandler(tornado.web.RequestHandler):
                 information.movesD['State'] = 'Lost'
         else:
             # wait until the op move and get the return information
-            yield tornado.gen.Task(self.check_other_moved(game_id, last_move))
+            yield tornado.gen.Task(check_other_moved, [game_id, last_move])
             information = Information(game_dict[game_id].last_moves)
         return_information = information.Encode()
         self.write(return_information)
-
-    def check_other_moved(self, game_id, moves):
-        had_moved = False
-        while not had_moved:
-            if game_id.last_moves is not moves:
-                had_moved = True
-            else:
-                time.sleep(1)
-        return 0
-
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()

@@ -56,3 +56,11 @@ To be fair, we only concern about the 2-player version:
 
 
 Your are honorable if matching any of these requests.
+
+##Sample Program
+###Blokus-0405.py
+>The details are in `BlokusHacker/Example/site`.
+
+We have provided a sample program for you to quickly write your own `BlokusHacker`. The kernel function is `getScores`, which represents the power of a `BlokusHacker`. 
+
+If you don't want to spend time on writting the basic opperation, like `rotate, canPut, getDiagList and so on`, you can write your codes with the sample and it would be our honors **:)**.

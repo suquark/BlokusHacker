@@ -29,15 +29,13 @@ The standard rules of play for all variations of the game are as follows:
 
 ## Restrictions
 
-To be fair, we only concern about the 2-player version:
+To be fair and simple, we only concern about the 2-player version:
 
 * 14\*14 board, 1 color per player, first step must cover a special location.
 
+The searching space for naive brute-force method is estimated to be 10^74 ~ 10^100, so you have to figure out some smart way.
+
 ![SmallBoard](SmallBoard.png)
-
-* 20\*20 board, 2 colors per player (player1 takes red & blue, while player2 takes yellow & green), first step must cover a corner.
-
-![BigBoard](BigBoard.png)
 
 **Indexing of the board:**
 

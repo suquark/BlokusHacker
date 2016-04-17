@@ -1,4 +1,21 @@
-import stdlib.stdarray as array
+# import stdlib.stdarray as array
+
+
+class array(object):
+    @staticmethod
+    def create2D(rowCount, colCount, value=None):
+        """
+        Create and return a 2D array having rowCount rows and colCount
+        columns, with each element initialized to value.
+        """
+        a = [None] * rowCount
+        for row in range(rowCount):
+            a[row] = [value] * colCount
+        return a
+
+    @staticmethod
+    def write2D(arr):
+        print(str(arr).replace("],", "]\n"))
 
 
 class Style(object):
@@ -6,7 +23,7 @@ class Style(object):
 
     def __init__(self, arg):
         self._squaresize = 5
-        self.points = array.create2D(5, 5, 0)
+        self.points = [[0] * 5] * 5
         self.pointsSet = set([])
         self.ID = 0
         if isinstance(arg, int) and arg in range(1, 22):
@@ -30,7 +47,7 @@ class Style(object):
                 self.Points2PointSet()
 
         else:
-            raise
+            raise ("Unkonwn")
 
     def initPointset(self, move):
         point_list = []
@@ -93,8 +110,8 @@ class Style(object):
         self.pointsSet = set(temp_list)
 
     def ID2PointSet(self):
-        ID2Points()
-        Points2PointSet()
+        self.ID2Points()
+        self.Points2PointSet()
 
     def Pointset2Points(self):
         square = array.create2D(5, 5, 0)
@@ -118,8 +135,8 @@ class Style(object):
 
     def showStyle(self):
         array.write2D(self.points)
-        print self.ID
-        print self.pointsSet
+        print(self.ID)
+        print(self.pointsSet)
 
     def CompareID(self, other_ID):
         if self.ID == other_ID:
@@ -221,7 +238,7 @@ class Style(object):
         elif self.pointsSet == set([(0, 1), (0, 0), (0, 2)]):
             self.ID = 3
             return 3
-        elif self.pointsSet == set([(0, 1), (0, 0), (1, 1)]):
+        elif self.pointsSet == {(0, 1), (0, 0), (1, 1)}:
             self.ID = 4
             return 4
         elif self.pointsSet == set([(0, 1), (1, 0), (0, 0), (1, 1)]):
@@ -290,43 +307,43 @@ def main():
         f.write(str(sty.ID) + '\n')
         f.write(str(sty.pointsSet) + '\n')
         f.close()
-    # 	if i == 1:
-    # 		tempstr = ''
-    # 	else:
-    # 		tempstr = 'el'
-    # 	f.writelines('\t%sif self.pointsSet == %s:\n' %(tempstr,str(sty.pointsSet)))
-    # 	f.writelines('\t\tself.ID = %s\n' %str(sty.ID))
-    # 	f.writelines('\t\treturn %d\n' %sty.ID)
+        # 	if i == 1:
+        # 		tempstr = ''
+        # 	else:
+        # 		tempstr = 'el'
+        # 	f.writelines('\t%sif self.pointsSet == %s:\n' %(tempstr,str(sty.pointsSet)))
+        # 	f.writelines('\t\tself.ID = %s\n' %str(sty.ID))
+        # 	f.writelines('\t\treturn %d\n' %sty.ID)
 
-    # while True:
-    # 	num = raw_input()
-    # 	if num == 'q':
-    # 		break;
-    # 	else:
-    # 		num = int(num)
-    # 		sty = Style(num)
-    # 		sty.showStyle()
-    # 		print 'sty2:\n'
-    # 		sty2 = Style(sty.points)
-    # 		sty2.showStyle()
-    # 		print 'sty3:\n'
-    # 		sty3 = Style(sty.pointsSet)
-    # 		sty3.showStyle()
-    # 		print 'sty:\n'
-    # 		# while True:
-    # 		# 	op = raw_input()
-    # 		# 	if op is 'q':
-    # 		# 		break;
-    # 		# 	for i in range(int(op)):
-    # 		# 		sty.Rotate()
-    # 		# 	sty.showStyle()
-    # 		# while True:
-    # 		# 	op = raw_input()
-    # 		# 	if op is 'q':
-    # 		# 		break;
-    # 		# 	for i in range(int(op)):
-    # 		# 		sty.Invert()
-    # 		# 	sty.showStyle()
+        # while True:
+        # 	num = raw_input()
+        # 	if num == 'q':
+        # 		break;
+        # 	else:
+        # 		num = int(num)
+        # 		sty = Style(num)
+        # 		sty.showStyle()
+        # 		print 'sty2:\n'
+        # 		sty2 = Style(sty.points)
+        # 		sty2.showStyle()
+        # 		print 'sty3:\n'
+        # 		sty3 = Style(sty.pointsSet)
+        # 		sty3.showStyle()
+        # 		print 'sty:\n'
+        # 		# while True:
+        # 		# 	op = raw_input()
+        # 		# 	if op is 'q':
+        # 		# 		break;
+        # 		# 	for i in range(int(op)):
+        # 		# 		sty.Rotate()
+        # 		# 	sty.showStyle()
+        # 		# while True:
+        # 		# 	op = raw_input()
+        # 		# 	if op is 'q':
+        # 		# 		break;
+        # 		# 	for i in range(int(op)):
+        # 		# 		sty.Invert()
+        # 		# 	sty.showStyle()
 
 
 if __name__ == '__main__':

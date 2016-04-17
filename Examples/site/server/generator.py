@@ -1,7 +1,6 @@
 import random
 import styles
-from stdlib import stdarray as array
-from styles import Style
+from styles import Style, array
 
 
 class Generator(object):
@@ -16,7 +15,7 @@ class Generator(object):
         for i in range(range_button, range_top):
             int_list.append(i)
         for item in int_list:
-            print item
+            print(item)
 
     def generate_chess(self):
         chess_pos_list = []
@@ -42,7 +41,6 @@ def main():
 
 
 # Generator().showChess(chess_pos_list)
-
 
 
 if __name__ == '__main__':

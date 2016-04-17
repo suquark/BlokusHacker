@@ -1,5 +1,5 @@
-from simple_json import JSONDecoder
-from simple_json import JSONEncoder
+from simplejson import JSONDecoder
+from simplejson import JSONEncoder
 
 
 # --------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ from simple_json import JSONEncoder
 class Information(object):
     """ This class define the information using in communication between server and users """
 
-    def __init__(self, moves = None):  # moves contains the position in the chess board
+    def __init__(self, moves=None):  # moves contains the position in the chess board
         self.moves = moves
         self.movesD = {}
         self.movesJ = ''
@@ -71,7 +71,7 @@ class ChessBoard(object):
             if point in self.essentialPoints:
                 flag = True
             elif point in self.fordidenPoints:
-                print 'Forbidden'
+                print('Forbidden')
                 break
         return flag  # moves is a list of pooints
 
@@ -125,7 +125,7 @@ class ChessBoard(object):
 
     def update(self, last_move):
         # print 'db update'
-        print self.checkMoves(last_move)
+        print(self.checkMoves(last_move))
         if (self.checkMoves(last_move)):
             move = last_move['Moves']
             for point in move:
@@ -146,7 +146,7 @@ class ChessBoard(object):
 
 
 class Player(object):
-    def __init__(self, id = None):
+    def __init__(self, id=None):
         self.id = id
         self.size = 14
         self.board = ChessBoard(self.size)
@@ -253,6 +253,7 @@ class Game(object):
             is_end = True
         return is_end
 
+
 from generator import *
 
 
@@ -266,10 +267,10 @@ def main():
                 last_move = {'Stste': 'Normal', 'Style': '', 'Moves': last_move_l}
                 player.myMove(last_move)
         player.board.Show()
-        A = raw_input()
+        A = input()
         if A == 'show':
-            print player.chess_ID_list
-            raw_input()
+            print(player.chess_ID_list)
+            input()
             # if A is not '\n':
             # 	ID = int(raw_input('ID: '))
             # 	line_shift = int(raw_input('line_shift: '))

@@ -2,7 +2,7 @@
 
 > AI for Blokus
 
-我们已经准备好了[中文README](README_CHS.md)，其中给出了一些更适合新手的指导。
+我们已经准备好了[中文README](README-CHS.md)，其中给出了一些更适合新手的指导。
 
 ***Still updating...***
 

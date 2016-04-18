@@ -44,7 +44,7 @@ def generate_index():
 
 def check_match(player, callback=None):
     had_match = False
-    while not had_match:
+    while not had_match
         wait_player_num = len(wait_player_list)
         for game in game_dict.values():  # check if I had been matched
             if game.p1 == player or game.p2 == player:

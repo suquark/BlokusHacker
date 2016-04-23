@@ -1,6 +1,4 @@
 # import stdlib.stdarray as array
-
-
 class array(object):
     @staticmethod
     def create2D(rowCount, colCount, value=None):
@@ -45,7 +43,8 @@ class Style(object):
                 self.Pointset2Points()
                 self.Points2ID()
                 self.Points2PointSet()
-
+        elif arg == None:
+            pass
         else:
             raise ("Unkonwn")
 
@@ -115,8 +114,10 @@ class Style(object):
 
     def Pointset2Points(self):
         square = array.create2D(5, 5, 0)
+        row_index_min = min([point[0] for point in self.pointsSet])
+        line_index_min = min([point[1] for point in self.pointsSet])
         for point in self.pointsSet:
-            square[point[0]][point[1]] = 1
+            square[point[0]-row_index_min][point[1]-line_index_min] = 1
         self.points = square
 
     def Points2ID(self):

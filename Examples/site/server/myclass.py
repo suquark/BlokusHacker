@@ -27,12 +27,12 @@ class Information(object):
             self.movesJ = self.moves
             self.Decode()
             if not self.movesD.__contains__('State'):  # the name of 'State' may should Change
-                self.movesD['State'] = 'normal'
+                self.movesD['State'] = 'Normal'
             elif not self.movesD.__contains__('Moves'):
                 self.movesD['Moves'] = ''
             elif not self.movesD.__contains__('Style'):
                 self.movesD['Style'] = ''
-            self.Encode()
+            self.Decode()
         elif isinstance(self.moves, dict):
             self.movesD = self.moves
             if not self.movesD.__contains__('State'):  # the name of 'State' may should Change
@@ -53,11 +53,11 @@ class Information(object):
 class ChessBoard(object):
     """ChessBoard is the board of the game"""
 
-    def __init__(self, size, moves={}, value=0):
+    def __init__(self, size, moves=None, value=0):
         self.board = array.create2D(size, size, value)
         self.size = size
         self.essentialPoints = self.initEsentialPoints()
-        self.fordidenPoints = self.initForbiddenPoints()
+        self.forbiddenPoints = self.initForbiddenPoints()
         self.styles = Style(moves)
 
     def showboard(self):
@@ -70,7 +70,7 @@ class ChessBoard(object):
             # print self.essentialPoints
             if point in self.essentialPoints:
                 flag = True
-            elif point in self.fordidenPoints:
+            elif point in self.forbiddenPoints:
                 print('Forbidden')
                 break
         return flag  # moves is a list of pooints
@@ -83,9 +83,9 @@ class ChessBoard(object):
 
     def setForbiddenPoint(self, points):
         for point in points:
-            if point not in self.fordidenPoints:
+            if point not in self.forbiddenPoints:
                 self.board[point[0]][point[1]] = 2
-                self.fordidenPoints.append(point)
+                self.forbiddenPoints.append(point)
 
     def setEssentialPoint(self, points):
         for point in points:
@@ -118,27 +118,28 @@ class ChessBoard(object):
         self.setForbiddenPoint(points)
 
     def rmEssentialPoint(self):
-        for point in self.fordidenPoints:
+        for point in self.forbiddenPoints:
             if point in self.essentialPoints:
                 self.board[point[0]][point[1]] = 2
                 self.essentialPoints.remove(point)
 
     def update(self, last_move):
         # print 'db update'
-        print(self.checkMoves(last_move))
-        if (self.checkMoves(last_move)):
+        is_valid = self.checkMoves(last_move)
+        if is_valid:
             move = last_move['Moves']
             for point in move:
                 self.addEssentialPoint(point)
                 self.addForbiddenPoint(point)
             self.rmEssentialPoint()
+        return is_valid
 
     def judgeStyle(self, Moves):  # lastmoves is the information of the last move
         style = Style(Moves)
         return style.ID
 
     def Show(self):
-        # for point in self.fordidenPoints:
+        # for point in self.forbiddenPoints:
         #	self.board[point[0]][point[1]] = -1
         # for point in self.essentialPoints:
         # self.board[point[0]][point[1]] = 1
@@ -150,15 +151,9 @@ class Player(object):
         self.id = id
         self.size = 14
         self.board = ChessBoard(self.size)
-        self.chess_ID_list = self.initChesslist()
+        self.chess_ID_list = [i for i in range(1, 22)]
 
-    def initChesslist(self):
-        chess_list = []
-        for i in range(1, 22):
-            chess_list.append(i)
-        return chess_list
-
-    def checkmovePlayer(self, last_move):
+    def checkmove_player(self, last_move):
         flag = True
         move_style_ID = Style(last_move).ID
         if move_style_ID not in self.chess_ID_list:
@@ -173,45 +168,53 @@ class Player(object):
         self.chess_ID_list.remove(move_style_ID)
 
     def Judge_nomoves(self):
+        """
+        这个方法用来判定某个玩家是否有子可下，使用的时枚举法
+        过程：
+        1.判断是否还有棋子（没有棋子不可下）
+        2.对于：剩下的每个棋子，每个正反面，每个方向，每个棋子中的点，平移至每个essential point的情况做判定 （估算运算量21×2×4×5×20=16800）
+        :return:
+        """
+        # 1.判断是否还有棋子（没有棋子不可下）
         if self.chess_ID_list is []:
-            return False
+            return True
         else:
-            for chess_ID in self.chess_ID_list:
+            # 2.对于：剩下的每个棋子，每个正反面，每个方向，每个棋子中的点，平移至每个essential point的情况做判定
+            for chess_ID in self.chess_ID_list:  # 每个棋子
                 chess = Style(chess_ID)
                 for i in range(2):
-                    chess.Invert()
+                    chess.Invert()  # 每个正反面
                     for j in range(4):
-                        chess.Rotate()
-                        for point in chess.pointsSet:
+                        chess.Rotate()  # 每个方向
+                        for point in chess.pointsSet:  # 每个棋子中的点
                             for essentialPoint in self.board.essentialPoints:
-                                line_shift = essentialPoint[0] - point[0]
+                                line_shift = essentialPoint[0] - point[0]  # 平移至每个essential point
                                 row_shift = essentialPoint[1] - point[1]
-                                possible_move = self.shiftChess(line_shift, row_shift, chess.pointsSet, chess_ID)
-                                if possible_move is {}:
-                                    pass
-                                else:
+                                possible_move = self.shift_chess(line_shift, row_shift, chess.pointsSet, chess_ID)
+                                if possible_move is not None:
                                     flag = self.board.checkMoves(possible_move)
                                     if flag:
-                                        # print possible_move
-                                        return True
-        return False
+                                        return False
+        return True
 
-    def shiftChess(self, line_shift, row_shift, pointsSet, chess_ID):
+    def shift_chess(self, line_shift, row_shift, pointsSet, chess_ID):
         move = {'State': 'Normal', 'Style': chess_ID, 'Moves': []}
         for point in pointsSet:
-            if point[0] + line_shift > self.size - 1 or point[1] + row_shift > self.size or point[0] + line_shift < 0 or \
-                                    point[1] + row_shift < 0:
-                return {}
+            if point[0] + line_shift > self.size - 1 or point[1] + row_shift > self.size or point[0] + line_shift < 0 \
+                    or point[1] + row_shift < 0:
+                return None
             move['Moves'].append((point[0] + line_shift, point[1] + row_shift))
         return move
 
-    def myMove(self, last_move):
+    def my_move(self, last_move):
         move_style = Style(last_move)
-        if self.checkmovePlayer(last_move):
+        is_valid = self.checkmove_player(last_move)
+        if is_valid:
             self.popChess(move_style.ID)
             self.board.update(last_move)
+        return is_valid
 
-    def otherMove(self, other_move):
+    def other_move(self, other_move):
         self.board.setForbiddenPoint(other_move['Moves'])
 
     def countScores(self):
@@ -232,26 +235,41 @@ class Player(object):
 
 class Game(object):
     def __init__(self, p1, p2, last_moves=None):
+        assert isinstance(p1, Player) and isinstance(p2, Player)
         self.p1 = p1
         self.p2 = p2
         self.last_moves = last_moves
 
     def update(self, player_id, last_moves):
-        if player_id is self.p1.id:
-            self.p1.myMoves(last_moves)
-            self.p2.otherMoves(last_moves)
+        is_valid = True
+        self.last_moves = last_moves
+        assert last_moves.__contains__('State') and last_moves.__contains__('Moves')
+        if last_moves['State'] is not 'Normal':
+            if last_moves['State'] is 'Unmove':
+                pass
+        elif player_id is self.p1.id:
+            is_valid = self.p1.my_move(last_moves['Moves'])
+            self.p2.other_move(last_moves['Moves'])
             self.last_moves = last_moves
         else:
-            self.p2.myMoves(last_moves)
-            self.p1.otherMoves(last_moves)
+            is_valid = self.p2.my_move(last_moves['Moves'])
+            self.p1.other_move(last_moves['Moves'])
             self.last_moves = last_moves
-        return 0
+        return is_valid
 
     def check_end(self):
         is_end = False
         if self.p1.Judge_nomoves() and self.p2.Judge_nomoves():
             is_end = True
         return is_end
+
+    def get_winner(self):
+        p1_score = self.p1.countScores()
+        p2_score = self.p2.countScores()
+        if p1_score > p2_score:
+            return self.p1.id
+        else:
+            return self.p2.id
 
 
 from generator import *
@@ -265,7 +283,7 @@ def main():
                 last_move_l = Generator().generate_chess()
                 # Generator().showChess(last_move_l)
                 last_move = {'Stste': 'Normal', 'Style': '', 'Moves': last_move_l}
-                player.myMove(last_move)
+                player.my_move(last_move)
         player.board.Show()
         A = input()
         if A == 'show':

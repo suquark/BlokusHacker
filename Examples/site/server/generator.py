@@ -1,5 +1,8 @@
 import random
-import styles
+
+from requests import post
+
+from myclass import Information, ChessBoard
 from styles import Style, array
 
 
@@ -27,7 +30,7 @@ class Generator(object):
         # print shift_l
         for pos in chess.pointsSet:
             chess_pos_list.append((min(13, pos[0] + shift_l), min(pos[1] + shift_r, 13)))
-        return chess_pos_list
+        return set(chess_pos_list)
 
     def showChess(self, chess_pos_list):
         board = array.create2D(14, 14, 0)
@@ -35,12 +38,53 @@ class Generator(object):
             board[point[0]][point[1]] = 1
         array.write2D(board)
 
+    def generate_post_data(self):
+        points = self.generate_chess()
+        print(points)
+        chess = Style(points)
+        info = Information({'Moves': list(chess.pointsSet)})
+        return info.movesJ
+
+    def generate_first_data(self):
+        is_valid = False
+        point_set = None
+        board = ChessBoard(14)
+        print(board.essentialPoints)
+        while not is_valid:
+            point_set = self.generate_chess()
+            is_valid = board.checkMoves({'Moves': list(point_set)})
+        info = Information({'Moves': list(point_set)})
+        return info.movesJ
+
+
+class Tester(object):
+    """
+    tester = Tester()
+    tester.post_last_move()
+    """
+
+    def __init__(self):
+        self.generator = Generator()
+        self.desk_url = 'http://localhost:8000/game'
+
+    def post_last_moves(self, id):
+        moves_json = self.generator.generate_post_data()
+        print(moves_json)
+        post(self.desk_url, json=moves_json)
+
+    def post_first_moves(self, player_id):
+        moves_json = self.generator.generate_first_data()
+        print(moves_json)
+        post(self.desk_url, data={'id': player_id, 'last_move': moves_json})
+
 
 def main():
-    chess_pos_list = Generator().generate_chess()
+    player_id = int(input('id:'))
+    tester = Tester()
+    tester.post_first_moves(player_id)
 
 
-# Generator().showChess(chess_pos_list)
+    # print(Generator().generate_first_data())
 
 
 if __name__ == '__main__':

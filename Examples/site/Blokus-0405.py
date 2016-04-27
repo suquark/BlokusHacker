@@ -8,9 +8,25 @@
 # Other deteals are at http://home.ustc.edu.cn/~ustczt/code/Blokus_sample_guide.html
 
 import math
-import os
-import sys
 import random
+
+from requests import get, post
+
+
+def post_data(point_list, player_id):
+    post_url = 'http://localhost:8000/game'
+    data = {
+        'last_move': point_list,
+        'id': player_id,
+    }
+    post(post_url, data=data)
+
+
+def get_player_id():
+    get_url = 'http://localhost:8000'
+    player_id = get(get_url)
+    return player_id
+
 
 change_around = [[-1, 0], [0, 1], [1, 0], [0, -1]]
 change_diag = [[-1, 1], [1, 1], [1, -1], [-1, -1]]
@@ -148,7 +164,7 @@ class ChessBoard:
         return goodPlan, goodPlanChessKey
 
 
-class Chess():
+class Chess(object):
     def __init__(self, point, level=0, maxRotate=8):
         self.level = level  # a feature, but it haven't been used in this sample
         self.maxRotate = maxRotate
@@ -176,7 +192,7 @@ def showArray(array):
             # out += '%s '%('O' if array[i][j] % 2 == 1  else ( 'X' if array[i][j] % 4 == 2 else ( array[i][j] if array[i][j] != 0 else '-' ) ) )
             out += '%s ' % ('O' if array[i][j] % 2 == 1  else ('X' if array[i][j] % 4 == 2 else '-'))
         out += '\n'
-    print out
+    print(out)
 
 
 def Minus(a, b):
@@ -234,55 +250,54 @@ def getData():
     error = 1
     while error == 1:
         try:
-            player2Plan_str = raw_input("Your Plan:")
+            player2Plan_str = input("Your Plan:")
             num_iter = iter(player2Plan_str.split(','))
             player2Plan = [[int(x), int(next(num_iter))] for x in num_iter if x != '-1']
             # clear [-1,-1]
-            player2ChessID = raw_input("Your Chess's ID:")
-            flag = int(raw_input("Flag(UnMove = 0OK = 1OverTime = 2):"))
+            player2ChessID = input("Your Chess's ID:")
+            flag = int(input("Flag(UnMove = 0OK = 1OverTime = 2):"))
             error = 0
         except:
-            print 'Please enter in right format!'
+            print('Please enter in right format!')
     return player2Plan, player2ChessID, flag
 
 
-def postData(pointList):
-    pass
-
-
-while status:
-    try:
-        player2Plan, player2ChessID, flag = getData()
-        # eg:
-        #	player2Plan : [[4,4], [4,5]]
-        #	player2ChessID : 2
-        #	flag : 1
-        if flag == OK:
-            BlokusBoard2.updateBoard(player2Plan, obj=BlokusBoard2.obj)
-            showArray(BlokusBoard2.matrix)
-            del BlokusBoard2.ChessDict[player2ChessID]
-            BlokusBoard1.updateBoard(player2Plan, obj=BlokusBoard2.obj)
-            print '----------------------------------\n'
-        if firstChess:
-            player1Plan = [[9, 9], [8, 9], [8, 8], [7, 8], [7, 7]]
-            player1ChessID = '18'
-            firstChess = 0
-        else:
-            player1Plan, player1ChessID = BlokusBoard1.getGoodPlan()
-        if not player1Plan:
+if __name__ == '__main__':
+    player_id = get_player_id()
+    while status:
+        try:
+            player2Plan, player2ChessID, flag = getData()
+            # eg:
+            #	player2Plan : [[4,4], [4,5]]
+            #	player2ChessID : 2
+            #	flag : 1
+            if flag == OK:
+                BlokusBoard2.updateBoard(player2Plan, obj=BlokusBoard2.obj)
+                showArray(BlokusBoard2.matrix)
+                del BlokusBoard2.ChessDict[player2ChessID]
+                BlokusBoard1.updateBoard(player2Plan, obj=BlokusBoard2.obj)
+                print('----------------------------------\n')
+            if firstChess:
+                player1Plan = [[9, 9], [8, 9], [8, 8], [7, 8], [7, 7]]
+                player1ChessID = '18'
+                firstChess = 0
+            else:
+                player1Plan, player1ChessID = BlokusBoard1.getGoodPlan()
+            if not player1Plan:
+                status = 0
+                print("Player1 can't put any chess!")
+            else:
+                del BlokusBoard1.ChessDict[player1ChessID]
+                BlokusBoard1.updateBoard(player1Plan, obj=BlokusBoard1.obj)
+                BlokusBoard2.updateBoard(player1Plan, obj=BlokusBoard1.obj)
+                showArray(BlokusBoard1.matrix)
+                print('----------------------------------\n')
+        except:
+            # if something wrong happens, maybe it just has no plan.
             status = 0
-            print "Player1 can't put any chess!"
-        else:
-            del BlokusBoard1.ChessDict[player1ChessID]
-            BlokusBoard1.updateBoard(player1Plan, obj=BlokusBoard1.obj)
-            BlokusBoard2.updateBoard(player1Plan, obj=BlokusBoard1.obj)
-            showArray(BlokusBoard1.matrix)
-            print '----------------------------------\n'
-    except:
-        # if something wrong happens, maybe it just has no plan.
-        status = 0
-        print "Player1 can't put any chess!"
-    for i in range(5 - len(player1Plan)):
-        player1Plan.append([-1, -1])
-    # just for formatting
-    postData(player1Plan)
+            print("Player1 can't put any chess!")
+        for i in range(5 - len(player1Plan)):
+            player1Plan.append([-1, -1])
+        # just for formatting
+
+        post_data(player1Plan, player_id)

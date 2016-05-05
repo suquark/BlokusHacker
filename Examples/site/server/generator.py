@@ -53,8 +53,8 @@ class Generator(object):
         while not is_valid:
             point_set = self.generate_chess()
             is_valid = board.checkMoves({'Moves': list(point_set)})
-        info = Information({'Moves': list(point_set)})
-        return info.movesJ
+        # info = Information({'Moves': list(point_set)})
+        return list(point_set)
 
 
 class Tester(object):

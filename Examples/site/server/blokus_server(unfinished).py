@@ -149,10 +149,11 @@ class GameHandler(RequestHandler):
         end = False
         data = self.get_argument('last_move')
         player_id = int(self.get_argument('id'))
-
+        print(data)
         # f = open('test.txt', 'w')
         # f.write(data)
         # f.close()
+        data = {"Moves": data}
         last_move = Information(data).movesD
         self.player = player_dict[player_id]
         game_id = self.get_game_id()

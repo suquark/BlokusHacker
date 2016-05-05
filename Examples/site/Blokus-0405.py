@@ -10,22 +10,8 @@
 import math
 import random
 
-from requests import get, post
+from post_get import post_data, get_player_id
 
-
-def post_data(point_list, player_id):
-    post_url = 'http://localhost:8000/game'
-    data = {
-        'last_move': point_list,
-        'id': player_id,
-    }
-    post(post_url, data=data)
-
-
-def get_player_id():
-    get_url = 'http://localhost:8000'
-    player_id = get(get_url)
-    return player_id
 
 
 change_around = [[-1, 0], [0, 1], [1, 0], [0, -1]]
@@ -48,6 +34,21 @@ class ChessBoard:
             self.matrix = [ChessBoard.matrix[i][:] for i in range(ChessBoard.size)]
             self.ChessDict = ChessBoard.ChessDict.copy()
             self.size = ChessBoard.size
+
+    def getScores(self, new_pointlist):
+        """
+        这是参赛者唯一需要完成的内容。
+        这个程序的基本做法是对于每一种局面，它会遍历下一步可行的全部下法，对所有的可行下法调用getScores方法得到一个数
+        据（这个数据只要是Python中可比较的就可以，不过一般推荐使用浮点数），然后选出分数最高的下法。
+        可能用到的知识：
+        1. 棋盘的信息可以由self获得，其中棋盘整体的信息以14*14的二维数组的形式保存在self.matrix中.
+        2. 判断某一个点是自己的棋子，对方的棋子，自己可以下的对角，或是对方可以下的对角可以通过调用self.selfChess,
+        self.selfDiag,self.oppChess, self.oppDiag四个方法得到True/False的布尔值。
+        3. 视觉化整个棋盘可以用showArray(self.Matrix)实现。
+        :param new_pointlist: 遍历过程中得到的某一中可下的棋子的坐标集（数据结构为list的list--数组的数组）。
+        :return:返回值为任意可比较的数。
+        """
+        return random.random()
 
     def setOppChessBoard(self, chessBoard):
         self.oppChessBoard = chessBoard
@@ -133,12 +134,6 @@ class ChessBoard:
                 return False
         return True
 
-    def getScores(self):
-        #
-        #	Your Code here :)
-        #
-        return random.random()
-
     def getGoodPlan(self):
         # Plan is the final choise of the way to put a chess
         # eg:
@@ -156,7 +151,7 @@ class ChessBoard:
                         newPointList = [Add(Minus(point, center), diag) for point in pointList]
                         # coordinate transformation
                         if self.canPut(newPointList):
-                            scores = self.getScores()
+                            scores = self.getScores(newPointList)
                             if max < scores:
                                 goodPlan = newPointList
                                 max = scores
@@ -262,7 +257,14 @@ def getData():
     return player2Plan, player2ChessID, flag
 
 
-if __name__ == '__main__':
+def test_get():
+    player = get_player_id()
+    print(player)
+
+
+def run_ai():
+    status = True
+    firstChess = True
     player_id = get_player_id()
     while status:
         try:
@@ -298,6 +300,9 @@ if __name__ == '__main__':
             print("Player1 can't put any chess!")
         for i in range(5 - len(player1Plan)):
             player1Plan.append([-1, -1])
-        # just for formatting
+            # just for formatting
+        post_data(player1Plan, player_id, None)
 
-        post_data(player1Plan, player_id)
+if __name__ == '__main__':
+    run_ai()
+

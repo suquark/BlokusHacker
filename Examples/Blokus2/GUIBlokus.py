@@ -1,5 +1,20 @@
 __author__='Togo'
 
+'''
+设定一个状态记录，如果和之前一样，就不再判断。直接跳过。
+
+
+共有0,1,2三种状态。
+如果是2状态，就不再接受。
+0.是不是与之前的重合了。
+1.下的形状是规则中的一个。
+2.下的形状之前没有下过。
+3.没有覆盖当前的
+4.邻顶不邻边
+
+
+'''
+
 from tkinter import *
 import string
 import _thread
@@ -15,14 +30,11 @@ GUIFile.append('GUI1Data.txt')
 GUIFile.append('GUI2Data.txt')
 outFile='UnName.txt'
 
-unMoveCount=-1
 DIM=14
 btn=[[Button for x in range(DIM)]for y in range(DIM)]
 ScoreDisplay=[Label]*3
 btnCB=[[0 for x in range(DIM)]for y in range(DIM)]
 colors=['WHITE','ORANGE','PURPLE']
-used=[0]*22
-used[0]=1
 cantMove=[0]*3
 step=0
 score=[0]*3
@@ -122,7 +134,7 @@ for x in range(1,22):
 
 #################################for ChessDict end  ################################
 
-
+'''
 
 def confirm():
     global btnCB
@@ -160,26 +172,56 @@ def confirm():
     f.write('1')
     f.close()
 
-def unMove():
-    global unMoveCount
-    f=open(outFile,'w')
-    f.write('-1 -1\n')
-    unMoveCount+=1
-    f.write(str(unMoveCount)+'\n')
-    f.write('0')
-    f.close()
-
-
+'''
 def clear():
     for x in range(DIM):
         for y in range(DIM):
             btn[x][y].config(bg=colors[btnCB[x][y]])
 
-def getData2(z=2):
+rec_planstr=[]
+rec_planstr.append("")
+rec_planstr.append("")
+rec_planstr.append("")
+rec_chessid=[]
+rec_chessid.append('0')
+rec_chessid.append('0')
+rec_chessid.append('0')
+rec_flag=[]
+rec_flag.append(0)
+rec_flag.append(0)
+rec_flag.append(0)
+unMoveCount=[]
+unMoveCount.append(-1)
+unMoveCount.append(-1)
+unMoveCount.append(-1)
+status=[]
+status.append(0)
+status.append(0)
+status.append(0)
+used=[]
+used.append([0]*22)
+used.append([0]*22)
+used.append([0]*22)
+used[1][0]=1
+used[2][0]=1
+
+def printSQ(a,n):
+    for x in range(n):
+        for y in range(n):
+            print(a[x][y],end=' ')
+        print()
+    print()
+
+def getData(z=1):
     global step
+    global btnCB
     while (1):
         try:
-            sleep(1)
+            sleep(0.1)
+            if status[z]<0:
+                print('Player'+str(z)+" dont't put the right format!"+' Current Step: '+str(step))
+                print('Wrong Code:',status[z])
+                break
             f=open(PlayerFile[z],'r')
             planStr=f.readline()
             planStr=planStr.rstrip()
@@ -190,7 +232,88 @@ def getData2(z=2):
             flag=int(f.readline())
             f.close()
 
+
             ####check if ok
+            if flag==2:
+                outf=open(GUIFile[3-z],'w')
+                outf.write('-1 -1\n'+str(step)+'\n0')
+                outf.close()
+                continue
+
+            if (planStr==rec_planstr[z])&(ChessID==rec_chessid[z])&(flag==rec_flag[z]):
+                continue
+            rec_planstr[z]=planStr
+            rec_chessid[z]=ChessID
+            rec_flag[z]=flag
+
+            if flag==0:
+                if int(ChessID)>unMoveCount[z]:
+                    unMoveCount[z]=int(ChessID)
+
+            if flag==1:
+                ChessNum=Chess(Plan)
+                cid=int(ChessID)
+                if not(1<=cid<=21):
+                    status[z]=-10
+                    continue
+                if ChessNum!=ChessDict[ChessID]:
+                    status[z]=-9 #lost
+                    continue
+                if used[z][cid]:
+                    status[z]=-8
+                    continue
+                used[z][cid]=1
+                for x,y in Plan:
+                    if (x<0)|(y<0)|(x>=DIM)|(y>=DIM):
+                        status[z]=-7
+                        break
+                    if btnCB[x][y]>0:
+                        status[z]=-6
+                        break
+                    if (x-1>=0):
+                        if (btnCB[x-1][y]==z):
+                            status[z]=-5
+                            break
+                    if (y-1>=0):
+                        if (btnCB[x][y-1]==z):
+                            status[z]=-4
+                            break
+                    if (x+1<DIM):
+                        if (btnCB[x+1][y]==z):
+                            status[z]=-3
+                            break
+                    if (y+1<DIM):
+                        if (btnCB[x][y+1]==z):
+                            status[z]=-2
+                            break
+                    if (x-1>=0)&(y-1>=0):
+                        if (btnCB[x-1][y-1]==z):
+                            status[z]=1
+                    if (x-1>=0)&(y+1<DIM):
+                        if (btnCB[x-1][y+1]==z):
+                            status[z]=1
+                    if (x+1<DIM)&(y-1>=0):
+                        if (btnCB[x+1][y-1]==z):
+                            status[z]=1
+                    if (x+1<DIM)&(y+1<DIM):
+                        if (btnCB[x+1][y+1]==z):
+                            status[z]=1
+
+                if status[z]<0:
+                    continue
+                if step<=2:
+                    if z==1:
+                        status[z]=([4,4]in Plan)
+                    elif z==2:
+                        status[z]=([9,9]in Plan)
+                    status[z]-=1
+                    if status[z]<0:
+                        continue
+                if step>2:
+                    status[z]-=1
+                    if status[z]==-1: #没有邻顶。注意判断第一步。
+                        continue
+
             ####if ok then=
             step+=1
             if flag==1:
@@ -198,7 +321,9 @@ def getData2(z=2):
                     btn[x][y].config(bg=colors[z])
                     btnCB[x][y]=z
                     score[z]+=1
-            #ScoreDisplay[1][Text]="Score"+str(z)+"="+str(score[z])
+
+
+            ScoreDisplay[z]['text']="Score"+str(z)+"="+str(score[z])
 
             outf=open(GUIFile[3-z],'w')
             # if flag==0:
@@ -215,60 +340,10 @@ def getData2(z=2):
                 outf.write(planStr+'\n')
                 outf.write(ChessID+'\n')
                 outf.write(str(flag))
-            else:
-                outf.write('-1 -1\n'+str(step)+'\n0')
             outf.close()
+            print('current step: ',step,'   ','from Player'+str(z))
         except:
-            pass
-
-def getData1(z=1):
-    global step
-    while (1):
-        try:
-            sleep(1)
-            f=open(PlayerFile[z],'r')
-            planStr=f.readline()
-            planStr=planStr.rstrip()
-            num_iter = iter(planStr.split(' '))
-            Plan = [[int(x), int(next(num_iter))] for x in num_iter]
-            ChessID=f.readline()
-            ChessID=str(int(ChessID))
-            flag=int(f.readline())
-            f.close()
-
-            ####check if ok
-            ####if ok then=
-            step+=1
-            if flag==1:
-                for x,y in Plan:
-                    btn[x][y].config(bg=colors[z])
-                    btnCB[x][y]=z
-                    score[z]+=1
-            # w=Button(root,text=text,command=lambda:w.config(bg=nextColor(w['bg']))
-            # ScoreDisplay[1]['Text']="Score"+str(z)+"="+str(score[z])
-            #ScoreDisplay[1].config(Text="Score"+str(z)+"="+str(score[z]))
-
-
-            outf=open(GUIFile[3-z],'w')
-            # if flag==0:
-            #     outf.write(planStr+'\n')
-            #     outf.write(str(step)+'\n')
-            #     outf.write(str(flag))
-            # elif flag==1:
-            #     outf.write(planStr+'\n')
-            #     outf.write(ChessID+'\n')
-            #     outf.write(str(flag))
-            # elif flag==2:
-            #     outf.write('-1 -1\n'+str(step)+'\n0')
-            if flag<=1:
-                outf.write(planStr+'\n')
-                outf.write(ChessID+'\n')
-                outf.write(str(flag))
-            else:
-                outf.write('-1 -1\n'+str(step)+'\n0')
-            outf.close()
-        except:
-            pass
+            print("Something Unexpected Happened.")
 
 
 class ChessBoard(Frame):
@@ -287,16 +362,12 @@ class ChessBoard(Frame):
             for y in range(DIM):
                 btn[x][y]=button(line,LEFT,'')
         line=frame(self,TOP)  #last line for Command
-        btnConfirm=Button(line,text="Confirm",command=confirm)
-        btnConfirm.pack(side=LEFT,expand=YES,fill=BOTH)
         btnClear=Button(line,text="Clear",command=clear)
         btnClear.pack(side=LEFT,expand=YES,fill=BOTH)
-        btnUnMove=Button(line,text="UnMove",command=unMove)
-        btnUnMove.pack(side=LEFT,expand=YES,fill=BOTH)
-        ScoreDisplay1=Label(line,text="Score1=0")
-        ScoreDisplay1.pack(side=LEFT,expand=YES,fill=BOTH)
-        ScoreDisplay2=Label(line,text="Score2=0")
-        ScoreDisplay2.pack(side=LEFT,expand=YES,fill=BOTH)
+        ScoreDisplay[1]=Label(line,text="Score1=0")
+        ScoreDisplay[1].pack(side=LEFT,expand=YES,fill=BOTH)
+        ScoreDisplay[2]=Label(line,text="Score2=0")
+        ScoreDisplay[2].pack(side=LEFT,expand=YES,fill=BOTH)
 
         # ScoreDisplay[1]=Label(line,text="Score1=0")
         # ScoreDisplay[1].pack(side=LEFT,expand=YES,fill=BOTH)
@@ -304,8 +375,10 @@ class ChessBoard(Frame):
         # ScoreDisplay[2].pack(side=LEFT,expand=YES,fill=BOTH)
 
 ######################################Main#########################
-
-_thread.start_new_thread(getData1,())
-_thread.start_new_thread(getData2,())
+#
+# _thread.start_new_thread(getData1,())
+# _thread.start_new_thread(getData2,())
+_thread.start_new_thread(getData,(1,))
+_thread.start_new_thread(getData,(2,))
 cb=ChessBoard(DIM)
 cb.mainloop()
